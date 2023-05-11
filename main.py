@@ -1,58 +1,89 @@
 import mysql.connector
+
 from mysql.connector import Error
-from typing import Any
+from typing import List
 
-DATABASE_NAME: str = "waltermart_candelaria_foodcourt"
+FOODCOURT_SEAT_RESERVATION_DATABASE = "foodcourt_seat_reservation"
 
-def execute_sql_commands(db_cursor: Any, query: Any) -> Any:
-  return db_cursor.execute(query)
+FOODCOURT_SEAT_RESERVATION_TABLE1 = "waltermart_candelaria_foodcourt"
+FOODCOURT_SEAT_RESERVATION_TABLE2 = "waltermart_candelaria_storename"
+FOODCOURT_SEAT_RESERVATION_TABLE3 = "waltermart_candelaria_timereservation"
 
-def display_databases_tables(db_cursor: Any) -> None:
-  for _ in db_cursor:
-    print(_)
+class DatabaseManager:
+  def __init__(self, host: str, user: str, password: str, database: str) -> None:
+    self.connection = mysql.connector.connect(
+      host = host,
+      user = user,
+      password = password,
+      database = database
+    )
+    self.cursor = self.connection.cursor()
+    
+  def is_database_exists(self, database_name: str) -> bool:
+    try:
+      self.cursor.execute(f"SHOW DATABASES LIKE '{database_name}'")
+      result = self.cursor.fetchone()
+      return result is not None
+
+    except mysql.connector.Error as error:
+      print(f"\nERROR CHECKING DATABASE EXISTENCE: {error}\n")
+      return False
+
+  def create_tables(self) -> None:
+    CREATE_TABLE_QUERIES: List[str] = [
+      f"""
+      CREATE TABLE IF NOT EXISTS {FOODCOURT_SEAT_RESERVATION_TABLE2} (
+        store_name VARCHAR(100) PRIMARY KEY,
+        number_customer INT,
+        seat_fee FLOAT
+      )
+      """,
+
+      f"""
+      CREATE TABLE IF NOT EXISTS {FOODCOURT_SEAT_RESERVATION_TABLE1} (
+        store_name_id VARCHAR(100) PRIMARY KEY,
+        time_reservation DATETIME,
+        number_customer INT,
+        seat_fee FLOAT,
+        store_name VARCHAR(100),
+        FOREIGN KEY (store_name) REFERENCES {FOODCOURT_SEAT_RESERVATION_TABLE2}(store_name)
+      )
+      """,
+
+      f"""
+      CREATE TABLE IF NOT EXISTS {FOODCOURT_SEAT_RESERVATION_TABLE3} (
+        store_name VARCHAR(100),
+        time_reservation DATETIME,
+        number_customer INT
+      )
+      """
+    ]
+
+    for QUERIES in CREATE_TABLE_QUERIES:
+      self.cursor.execute(QUERIES)
+    
+    self.connection.commit()
+
+    print("TABLES CREATED SUCCESSFULLY.\n")
+
+  def read_data(self, table_name: str) -> None:
+    try:
+      self.cursor.execute(f"SELECT * FROM {table_name}")  
+      rows = self.cursor.fetchall()  
+      for row in rows:
+        print(row)
+
+    except mysql.connector.Error as error:
+      print(f"\nERROR READING DATA FROM: {error}\n")
 
 def main() -> None:
-    
-  store_name: str = input("Input Store Name: ")
-  time_reservation: str = input(f"Input Time of Seat Reservation for {store_name}\'s Customer: ")
-  number_customer: int = input(f"Input Number of Seats for {store_name}\'s Customer: ")
-  seat_fee: float = input("Input Seat Fee: ")
-  
-  try:
-    
-    db_connect = mysql.connector.connect(
-      host = "localhost", 
-      database = "foodcourt_seat_reservation", 
-      user = "root", 
-      password = ""
-    )
-    
-    # db_create_query = f"CREATE DATABASE {} ({} {}, {} {})"
-    # db_show_db_query = "SHOW DATABASES"
-    # db_show_tb_query = "SHOW TABLES"
-    
-    db_insert_query = f"INSERT INTO {DATABASE_NAME} \
-                        (store_name, time_reservation, number_customer, seat_fee) \
-                        VALUES (\"{store_name}\", \"{time_reservation}\", \"{number_customer}\", \"{seat_fee}\")"
-                 
-    db_cursor = db_connect.cursor()
-    
-    execute_sql_commands(db_cursor, db_insert_query)
-    
-    db_connect.commit()
-    db_cursor.close()
-    
-    print("\nDATA SUCCESSFULLY INSERTED\n")
-    
-  except Error as error:
-    
-    print(f"\nINSERT DATA FAILED {error}\n")
-    
-  finally:
-    
-    if db_connect.is_connected():
-      db_connect.close()
-      print("\nSQL IS NOW CLOSED.\n")
+  sql = DatabaseManager("localhost", "root", "", FOODCOURT_SEAT_RESERVATION_DATABASE)
 
+  if sql.is_database_exists(FOODCOURT_SEAT_RESERVATION_DATABASE) != False:
+    sql.create_tables()
+    
+  if sql.is_database_exists(FOODCOURT_SEAT_RESERVATION_DATABASE) != False:
+    sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE1)
+  
 if __name__ == "__main__":
   main()
