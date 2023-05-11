@@ -1,7 +1,15 @@
 import mysql.connector
 from mysql.connector import Error
+from typing import Any
 
 DATABASE_NAME: str = "waltermart_candelaria_foodcourt"
+
+def execute_sql_commands(db_cursor: Any, query: Any) -> Any:
+  return db_cursor.execute(query)
+
+def display_databases_tables(db_cursor: Any) -> None:
+  for _ in db_cursor:
+    print(_)
 
 def main() -> None:
     
@@ -13,17 +21,24 @@ def main() -> None:
   try:
     
     db_connect = mysql.connector.connect(
-      host="localhost", 
-      database="foodcourt_seat_reservation", 
-      user="root", 
-      password=""
+      host = "localhost", 
+      database = "foodcourt_seat_reservation", 
+      user = "root", 
+      password = ""
     )
     
-    db_insert_query = f"INSERT INTO {DATABASE_NAME} (store_name, time_reservation, number_customer, seat_fee) \
+    # db_create_query = f"CREATE DATABASE {} ({} {}, {} {})"
+    # db_show_db_query = "SHOW DATABASES"
+    # db_show_tb_query = "SHOW TABLES"
+    
+    db_insert_query = f"INSERT INTO {DATABASE_NAME} \
+                        (store_name, time_reservation, number_customer, seat_fee) \
                         VALUES (\"{store_name}\", \"{time_reservation}\", \"{number_customer}\", \"{seat_fee}\")"
                  
     db_cursor = db_connect.cursor()
-    db_cursor.execute(db_insert_query)
+    
+    execute_sql_commands(db_cursor, db_insert_query)
+    
     db_connect.commit()
     db_cursor.close()
     
