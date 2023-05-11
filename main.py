@@ -127,29 +127,6 @@ class DatabaseManager:
       
     except mysql.connector.Error as error:
       print(f"\nERROR DELETING DATA: {error}\n")
-      
-  def advanced_query(self) -> None:
-    """
-    Executes an advanced query demonstrating the usage of JOINS, GROUP BY, HAVING, and wildcards.
-    """
-    try:
-      query = """
-      SELECT s.store_name, COUNT(r.store_name_id) AS reservation_count
-      FROM waltermart_candelaria_storename AS s
-      LEFT JOIN waltermart_candelaria_foodcourt AS r
-      ON s.store_name_id = r.store_name_id
-      WHERE s.store_name LIKE 'Store%'
-      GROUP BY s.store_name
-      HAVING reservation_count > 5
-      ORDER BY reservation_count DESC
-      """
-      self.cursor.execute(query)
-      rows = self.cursor.fetchall()
-      for row in rows:
-        print(row)
-
-    except mysql.connector.Error as error:
-      print(f"\nERROR EXECUTING ADVANCED QUERY: {error}\n")
           
 def main() -> None:
   sql = DatabaseManager("localhost", "root", "", FOODCOURT_SEAT_RESERVATION_DATABASE)
@@ -230,9 +207,6 @@ def main() -> None:
   print("\n--- Deleting Data ---")
   sql.delete_data(FOODCOURT_SEAT_RESERVATION_TABLE2, "store_name_id = 'S05_K_B_H'")
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE2)
-
-  print("\n--- Advanced Query ---")
-  sql.advanced_query()
 
 if __name__ == "__main__":
   main()
