@@ -204,14 +204,12 @@ def main() -> None:
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE2)
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE3)
 
-  # Updating seat fee for a store
   update_values = {
     "seat_fee": 20.00
   }
   condition = "store_name_id = 'S06_S_O'"
   sql.update_data(FOODCOURT_SEAT_RESERVATION_TABLE1, update_values, condition)
 
-  # Deleting reservation data for a specific store
   condition = "store_name_id = 'S01_P_C'"
   sql.delete_data(FOODCOURT_SEAT_RESERVATION_TABLE3, condition)
 
