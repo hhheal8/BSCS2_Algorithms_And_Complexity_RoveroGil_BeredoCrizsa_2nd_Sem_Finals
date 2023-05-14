@@ -10,10 +10,10 @@ FOODCOURT_SEAT_RESERVATION_TABLE3 = "waltermart_candelaria_timereservation"
 class DatabaseManager:
   def __init__(self, host: str, user: str, password: str, database: str) -> None:
     self.connection = mysql.connector.connect(
-      host=host,
-      user=user,
-      password=password,
-      database=database
+      host = host,
+      user = user,
+      password = password,
+      database = database
     )
     
     self.cursor = self.connection.cursor()
@@ -72,9 +72,6 @@ class DatabaseManager:
     print("TABLES CREATED SUCCESSFULLY.\n")
 
   def insert_data(self, table_name: str, data: List[dict]) -> None:
-    """
-    Inserts data into the specified table.
-    """
     try:
       for item in data:
         columns = ", ".join(item.keys())
@@ -98,9 +95,6 @@ class DatabaseManager:
       print(f"\nERROR READING DATA FROM: {error}\n")
 
   def update_data(self, table_name: str, column_values: dict, condition: str = "") -> None:
-    """
-    Updates data in the specified table with the given column-value pairs and condition.
-    """
     try:
       columns = ", ".join(f"{column} = '{value}'" for column, value in column_values.items())
       query = f"UPDATE {table_name} SET {columns}"
@@ -114,9 +108,6 @@ class DatabaseManager:
       print(f"\nERROR UPDATING DATA: {error}\n")
 
   def delete_data(self, table_name: str, condition: str = "") -> None:
-    """
-    Deletes data from the specified table based on the given condition.
-    """
     try:
       query = f"DELETE FROM {table_name}"
       if condition:
@@ -127,7 +118,54 @@ class DatabaseManager:
       
     except mysql.connector.Error as error:
       print(f"\nERROR DELETING DATA: {error}\n")
-          
+
+  def join_tables(self) -> None:
+    try:
+      query = f"""
+      SELECT {FOODCOURT_SEAT_RESERVATION_TABLE1}.store_name_id, {FOODCOURT_SEAT_RESERVATION_TABLE2}.store_name
+      FROM {FOODCOURT_SEAT_RESERVATION_TABLE1}
+      INNER JOIN {FOODCOURT_SEAT_RESERVATION_TABLE2}
+      ON {FOODCOURT_SEAT_RESERVATION_TABLE1}.store_name_id = {FOODCOURT_SEAT_RESERVATION_TABLE2}.store_name_id
+      """
+      self.cursor.execute(query)
+      rows = self.cursor.fetchall()
+      for row in rows:
+        print(row)
+
+    except mysql.connector.Error as error:
+      print(f"\nERROR JOINING TABLES: {error}\n")
+
+  def group_by_having(self) -> None:
+    try:
+      query = f"""
+      SELECT store_name_id, COUNT(*) AS total_reservations
+      FROM {FOODCOURT_SEAT_RESERVATION_TABLE3}
+      GROUP BY store_name_id
+      HAVING total_reservations > 2
+      """
+      self.cursor.execute(query)
+      rows = self.cursor.fetchall()
+      for row in rows:
+        print(row)
+
+    except mysql.connector.Error as error:
+      print(f"\nERROR EXECUTING GROUP BY HAVING: {error}\n")
+      
+  def order_by(self) -> None:
+    try:
+      query = f"""
+      SELECT *
+      FROM {FOODCOURT_SEAT_RESERVATION_TABLE3}
+      ORDER BY time_reservation DESC
+      """
+      self.cursor.execute(query)
+      rows = self.cursor.fetchall()
+      for row in rows:
+        print(row)
+
+    except mysql.connector.Error as error:
+      print(f"\nERROR EXECUTING ORDER BY: {error}\n")
+
 def main() -> None:
   sql = DatabaseManager("localhost", "root", "", FOODCOURT_SEAT_RESERVATION_DATABASE)
 
@@ -213,6 +251,14 @@ def main() -> None:
   condition = "store_name_id = 'S01_P_C'"
   sql.delete_data(FOODCOURT_SEAT_RESERVATION_TABLE3, condition)
 
+  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE3)
+
+  sql.join_tables()
+  sql.group_by_having()
+  sql.order_by()
+
+  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE1)
+  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE2)
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE3)
 
 if __name__ == "__main__":
