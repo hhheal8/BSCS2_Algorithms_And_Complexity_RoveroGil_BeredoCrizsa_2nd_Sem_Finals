@@ -169,44 +169,53 @@ def main() -> None:
   ]
   
   sql.insert_data(FOODCOURT_SEAT_RESERVATION_TABLE1, data)
-
+  
   reservation_data = [
     {
       "store_name_id": "S01_P_C",
-      "time_reservation": "2023-05-12 10:00:00",
+      "time_reservation": "2023-05-12 11:00:00",
       "number_customer": 4
     },
     {
       "store_name_id": "S01_P_C",
-      "time_reservation": "2023-05-12 11:00:00",
+      "time_reservation": "2023-05-12 13:10:00",
+      "number_customer": 3
+    },
+    {
+      "store_name_id": "S01_P_C",
+      "time_reservation": "2023-05-12 9:20:00",
+      "number_customer": 8
+    },
+    {
+      "store_name_id": "S05_K_B_H",
+      "time_reservation": "2023-05-12 11:40:00",
       "number_customer": 2
     },
     {
       "store_name_id": "S05_K_B_H",
-      "time_reservation": "2023-05-12 12:00:00",
-      "number_customer": 3
-    },
-    {
-      "store_name_id": "S06_S_O",
-      "time_reservation": "2023-05-12 13:00:00",
-      "number_customer": 1
+      "time_reservation": "2023-05-12 14:30:00",
+      "number_customer": 6
     }
   ]
-  
+
   sql.insert_data(FOODCOURT_SEAT_RESERVATION_TABLE3, reservation_data)
 
-  print("\n--- Reading Data ---")
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE1)
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE2)
   sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE3)
 
-  print("\n--- Updating Data ---")
-  sql.update_data(FOODCOURT_SEAT_RESERVATION_TABLE1, {"seat_fee": 12.50}, "store_name_id = 'S01_P_C'")
-  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE1)
+  # Updating seat fee for a store
+  update_values = {
+    "seat_fee": 20.00
+  }
+  condition = "store_name_id = 'S06_S_O'"
+  sql.update_data(FOODCOURT_SEAT_RESERVATION_TABLE1, update_values, condition)
 
-  print("\n--- Deleting Data ---")
-  sql.delete_data(FOODCOURT_SEAT_RESERVATION_TABLE2, "store_name_id = 'S05_K_B_H'")
-  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE2)
+  # Deleting reservation data for a specific store
+  condition = "store_name_id = 'S01_P_C'"
+  sql.delete_data(FOODCOURT_SEAT_RESERVATION_TABLE3, condition)
+
+  sql.read_data(FOODCOURT_SEAT_RESERVATION_TABLE3)
 
 if __name__ == "__main__":
   main()
