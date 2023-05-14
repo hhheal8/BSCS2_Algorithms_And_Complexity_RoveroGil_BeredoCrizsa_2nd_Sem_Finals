@@ -1,0 +1,47 @@
+SELECT *
+FROM waltermart_candelaria_timereservation
+WHERE number_customer > 5;
+
+SELECT *
+FROM waltermart_candelaria_foodcourt
+WHERE seat_fee <= 10.00 AND store_name_id LIKE 'S%';
+
+SELECT *
+FROM waltermart_candelaria_storename
+WHERE store_name LIKE '%Hub';
+
+SELECT t.store_name_id, s.store_name
+FROM waltermart_candelaria_foodcourt AS t
+INNER JOIN waltermart_candelaria_storename AS s
+ON t.store_name_id = s.store_name_id;
+
+SELECT store_name_id, COUNT(*) AS total_reservations
+FROM waltermart_candelaria_timereservation
+GROUP BY store_name_id;
+
+SELECT store_name_id, COUNT(*) AS total_reservations
+FROM waltermart_candelaria_timereservation
+GROUP BY store_name_id
+HAVING total_reservations > 2;
+
+SELECT *
+FROM waltermart_candelaria_timereservation
+ORDER BY time_reservation DESC;
+
+SELECT *
+FROM waltermart_candelaria_timereservation
+WHERE store_name_id = 'S01_P_C' OR number_customer >= 4;
+
+SELECT *
+FROM waltermart_candelaria_storename
+WHERE store_name LIKE 'S%' AND store_name NOT LIKE '%Hub';
+
+SELECT f.store_name_id, s.store_name, t.time_reservation
+FROM waltermart_candelaria_foodcourt AS f
+INNER JOIN waltermart_candelaria_storename AS s
+ON f.store_name_id = s.store_name_id
+INNER JOIN waltermart_candelaria_timereservation AS t
+ON f.store_name_id = t.store_name_id
+WHERE t.number_customer > 2
+ORDER BY t.time_reservation ASC;
+
